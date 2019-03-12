@@ -191,7 +191,7 @@ STATIC_INLINE int jl_array_ndimwords(uint32_t ndims) JL_NOTSAFEPOINT
 }
 
 typedef struct _jl_datatype_t jl_tupletype_t;
-struct _jl_nativecode_t;
+struct _jl_code_instance_t;
 
 // TypeMap is an implicitly defined type
 // that can consist of any of the following nodes:
@@ -203,7 +203,7 @@ struct _jl_nativecode_t;
 // otherwise the leaf entries are stored sorted, linearly
 typedef jl_value_t jl_typemap_t;
 
-typedef jl_value_t *(jl_call_t)(struct _jl_nativecode_t*, jl_value_t**, uint32_t);
+typedef jl_value_t *(jl_call_t)(struct _jl_code_instance_t*, jl_value_t**, uint32_t);
 typedef jl_call_t *jl_callptr_t;
 
 // "speccall" calling convention signatures.
@@ -318,15 +318,15 @@ typedef struct _jl_method_instance_t {
     jl_svec_t *sparam_vals; // static parameter values, indexed by def.method->sparam_syms
     jl_value_t *uninferred;
     jl_array_t *backedges;
-    struct _jl_nativecode_t *cache;
+    struct _jl_code_instance_t *cache;
     uint8_t inInference; // flags to tell if inference is running on this object
 } jl_method_instance_t;
 
 // This type represents an executable operation
-typedef struct _jl_nativecode_t {
+typedef struct _jl_code_instance_t {
     JL_DATA_TYPE
     jl_method_instance_t *def; // method this is specialized from
-    struct _jl_nativecode_t *next; // pointer to the next cache entry
+    struct _jl_code_instance_t *next; // pointer to the next cache entry
 
     // world range for which this object is valid to use
     size_t min_world;
@@ -573,7 +573,7 @@ extern JL_DLLEXPORT jl_datatype_t *jl_builtin_type JL_GLOBALLY_ROOTED;
 
 extern JL_DLLEXPORT jl_value_t *jl_bottom_type JL_GLOBALLY_ROOTED;
 extern JL_DLLEXPORT jl_datatype_t *jl_method_instance_type JL_GLOBALLY_ROOTED;
-extern JL_DLLEXPORT jl_datatype_t *jl_nativecode_type JL_GLOBALLY_ROOTED;
+extern JL_DLLEXPORT jl_datatype_t *jl_code_instance_type JL_GLOBALLY_ROOTED;
 extern JL_DLLEXPORT jl_datatype_t *jl_code_info_type JL_GLOBALLY_ROOTED;
 extern JL_DLLEXPORT jl_datatype_t *jl_method_type JL_GLOBALLY_ROOTED;
 extern JL_DLLEXPORT jl_datatype_t *jl_module_type JL_GLOBALLY_ROOTED;
@@ -1007,7 +1007,7 @@ static inline int jl_is_layout_opaque(const jl_datatype_layout_t *l) JL_NOTSAFEP
 #define jl_is_newvarnode(v)  jl_typeis(v,jl_newvarnode_type)
 #define jl_is_linenode(v)    jl_typeis(v,jl_linenumbernode_type)
 #define jl_is_method_instance(v) jl_typeis(v,jl_method_instance_type)
-#define jl_is_nativecode(v)  jl_typeis(v,jl_nativecode_type)
+#define jl_is_code_instance(v) jl_typeis(v,jl_code_instance_type)
 #define jl_is_code_info(v)   jl_typeis(v,jl_code_info_type)
 #define jl_is_method(v)      jl_typeis(v,jl_method_type)
 #define jl_is_module(v)      jl_typeis(v,jl_module_type)

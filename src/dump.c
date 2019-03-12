@@ -98,7 +98,7 @@ extern jl_array_t *jl_module_init_order;
 #define TAG_TVAR               25
 #define TAG_METHOD_INSTANCE    26
 #define TAG_METHOD             27
-#define TAG_NATIVECODE         28
+#define TAG_CODE_INSTANCE      28
 #define TAG_COMMONSYM          29
 #define TAG_NEARBYGLOBAL       30
 #define TAG_GLOBALREF          31
@@ -848,8 +848,8 @@ static void jl_serialize_value_(jl_serializer_state *s, jl_value_t *v, int as_li
         }
         jl_serialize_value(s, (jl_value_t*)backedges);
     }
-    else if (jl_is_nativecode(v)) {
-        write_uint8(s->s, TAG_NATIVECODE);
+    else if (jl_is_code_instance(v)) {
+        write_uint8(s->s, TAG_CODE_INSTANCE);
         jl_code_instance_t *codeinst = (jl_code_instance_t*)v;
         int validate = 0;
         if (codeinst->max_world == ~(size_t)0)
@@ -1727,11 +1727,11 @@ static jl_value_t *jl_deserialize_value_method_instance(jl_serializer_state *s, 
     return (jl_value_t*)mi;
 }
 
-static jl_value_t *jl_deserialize_value_nativecode(jl_serializer_state *s, jl_value_t **loc) JL_GC_DISABLED
+static jl_value_t *jl_deserialize_value_code_instance(jl_serializer_state *s, jl_value_t **loc) JL_GC_DISABLED
 {
     int usetable = (s->mode != MODE_IR);
     jl_code_instance_t *codeinst =
-        (jl_code_instance_t*)jl_gc_alloc(s->ptls, sizeof(jl_code_instance_t), jl_nativecode_type);
+        (jl_code_instance_t*)jl_gc_alloc(s->ptls, sizeof(jl_code_instance_t), jl_code_instance_type);
     memset(codeinst, 0, sizeof(jl_code_instance_t));
     if (usetable)
         arraylist_push(&backref_list, codeinst);
@@ -2080,8 +2080,8 @@ static jl_value_t *jl_deserialize_value(jl_serializer_state *s, jl_value_t **loc
         return jl_deserialize_value_method(s, loc);
     case TAG_METHOD_INSTANCE:
         return jl_deserialize_value_method_instance(s, loc);
-    case TAG_NATIVECODE:
-        return jl_deserialize_value_nativecode(s, loc);
+    case TAG_CODE_INSTANCE:
+        return jl_deserialize_value_code_instance(s, loc);
     case TAG_MODULE:
         return jl_deserialize_value_module(s);
     case TAG_SHORTER_INT64:
@@ -3291,7 +3291,7 @@ void jl_init_serializer(void)
     deser_tag[TAG_TVAR] = (jl_value_t*)jl_tvar_type;
     deser_tag[TAG_METHOD_INSTANCE] = (jl_value_t*)jl_method_instance_type;
     deser_tag[TAG_METHOD] = (jl_value_t*)jl_method_type;
-    deser_tag[TAG_NATIVECODE] = (jl_value_t*)jl_nativecode_type;
+    deser_tag[TAG_CODE_INSTANCE] = (jl_value_t*)jl_code_instance_type;
     deser_tag[TAG_GLOBALREF] = (jl_value_t*)jl_globalref_type;
     deser_tag[TAG_INT32] = (jl_value_t*)jl_int32_type;
     deser_tag[TAG_INT64] = (jl_value_t*)jl_int64_type;

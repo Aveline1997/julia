@@ -673,7 +673,7 @@ static void jl_write_values(jl_serializer_state *s)
             if (jl_is_method(v)) {
                 write_padding(s->s, sizeof(jl_method_t) - tot);
             }
-            else if (jl_is_nativecode(v)) {
+            else if (jl_is_code_instance(v)) {
                 jl_code_instance_t *m = (jl_code_instance_t*)v;
                 jl_code_instance_t *newm = (jl_code_instance_t*)&s->s->buf[reloc_offset];
 
@@ -1630,7 +1630,7 @@ static void jl_init_serializer2(int for_serialize)
                      jl_symbol_type, jl_ssavalue_type, jl_datatype_type, jl_slotnumber_type,
                      jl_simplevector_type, jl_array_type, jl_typedslot_type,
                      jl_expr_type, jl_globalref_type, jl_string_type,
-                     jl_module_type, jl_tvar_type, jl_method_instance_type, jl_method_type, jl_nativecode_type,
+                     jl_module_type, jl_tvar_type, jl_method_instance_type, jl_method_type, jl_code_instance_type,
                      jl_emptysvec, jl_emptytuple, jl_false, jl_true, jl_nothing, jl_any_type,
                      call_sym, invoke_sym, goto_ifnot_sym, return_sym, jl_symbol("tuple"),
                      unreachable_sym, jl_an_empty_string,
@@ -1655,7 +1655,7 @@ static void jl_init_serializer2(int for_serialize)
                      jl_methtable_type->name, jl_typemap_level_type->name, jl_typemap_entry_type->name, jl_tvar_type->name,
                      ((jl_datatype_t*)jl_unwrap_unionall((jl_value_t*)jl_abstractarray_type))->name,
                      ((jl_datatype_t*)jl_unwrap_unionall((jl_value_t*)jl_densearray_type))->name,
-                     jl_vararg_typename, jl_void_type->name, jl_method_instance_type->name, jl_method_type->name, jl_nativecode_type->name,
+                     jl_vararg_typename, jl_void_type->name, jl_method_instance_type->name, jl_method_type->name, jl_code_instance_type->name,
                      jl_module_type->name, jl_function_type->name, jl_typedslot_type->name,
                      jl_abstractslot_type->name, jl_slotnumber_type->name,
                      jl_unionall_type->name, jl_intrinsic_type->name, jl_task_type->name,

@@ -1180,7 +1180,7 @@ jl_code_instance_t *jl_compile_linfo(jl_method_instance_t *mi, jl_code_info_t *s
             // caller demanded that we make a new copy
             jl_ptls_t ptls = jl_get_ptls_states();
             jl_code_instance_t *uncached = (jl_code_instance_t*)jl_gc_alloc(ptls, sizeof(jl_code_instance_t),
-                    jl_nativecode_type);
+                    jl_code_instance_type);
             uncached->min_world = codeinst->min_world;
             uncached->max_world = codeinst->max_world;
             uncached->functionObjectsDecls.functionObject = NULL;
@@ -1513,7 +1513,7 @@ void *jl_get_llvmf_defn(jl_method_instance_t *mi, size_t world, bool getwrapper,
     jl_value_t *jlrettype = (jl_value_t*)jl_any_type;
     jl_code_info_t *src = NULL;
     JL_GC_PUSH2(&src, &jlrettype);
-    if (jl_code_instance_t *codeinst = jl_is_rettype_inferred(mi, world, world)) {
+    if (jl_code_instance_t *codeinst = jl_rettype_inferred(mi, world, world)) {
         src = (jl_code_info_t*)codeinst->inferred;
         if ((jl_value_t*)src != jl_nothing && !jl_is_code_info(src) && jl_is_method(mi->def.method))
             src = jl_uncompress_ast(mi->def.method, codeinst, (jl_array_t*)src);
@@ -1602,7 +1602,7 @@ void *jl_get_llvmf_decl(jl_method_instance_t *mi, size_t world, bool getwrapper,
 
     // compile this normally
     jl_code_info_t *src = NULL;
-    if (!jl_is_rettype_inferred(mi, world, world))
+    if (!jl_rettype_inferred(mi, world, world))
         src = jl_type_infer(mi, world, 0);
     jl_code_instance_t *codeinst = jl_compile_linfo(mi, src, world, &params);
     if (codeinst == NULL)
@@ -4389,7 +4389,7 @@ static Function* gen_cfun_wrapper(
     if (lam) {
         name = jl_symbol_name(lam->def.method->name);
         jl_code_info_t *src = NULL;
-        codeinst = jl_is_rettype_inferred(lam, world, world);
+        codeinst = jl_rettype_inferred(lam, world, world);
         if (!into && codeinst == NULL) // TODO: this isn't ideal to be unconditionally calling type inference from here
             src = jl_type_infer(lam, world, 0);
         codeinst = jl_compile_linfo(lam, src, world, &jl_default_cgparams);
